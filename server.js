@@ -4,19 +4,22 @@ const connectDB = require('./config/db');
 const app = express();
 
 connectDB();
+
+// init middleware
+app.use(express.json({ extended: false }));
 const PORT = process.env.PORT || 8888;
 
-app.get('/',  (req, res)=>res.send("App is running"))
+app.get('/', (req, res) => res.send('App is running'));
 
 /**
- * @Routes 
+ * @Routes
  */
 
-app.use('/api/users', require('./routes/api/users'))
-app.use('/api/auth', require('./routes/api/auth'))
-app.use('/api/posts', require('./routes/api/posts'))
-app.use('/api/profile', require('./routes/api/profile'))
+app.use('/api/users', require('./routes/api/users'));
+app.use('/api/auth', require('./routes/api/auth'));
+app.use('/api/posts', require('./routes/api/posts'));
+app.use('/api/profile', require('./routes/api/profile'));
 
-app.listen(PORT, () =>{
-    console.log(`Server is listening on Port: -> ${PORT}`);
-})
+app.listen(PORT, () => {
+  console.log(`Server is listening on Port: -> ${PORT}`);
+});
