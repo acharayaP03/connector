@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
+
 const config = require('config');
+
 const db = config.get('mongoURI')
 
 const connectDB = async () =>{
@@ -10,10 +12,13 @@ const connectDB = async () =>{
             useCreateIndex: true,
             useFindAndModify: false
         });
+
         console.log("Database is connected...")
+        
     }catch(err){
+
         console.log(err.message);
-        //if error exit the process
+        // if error exit the process
         process.exit(1)
     }
 }
