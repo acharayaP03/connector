@@ -1,8 +1,12 @@
 const express = require('express');
 
-const { check, validationResult } = require('express-validator');
+const { check, validationResult, body } = require('express-validator');
 
 const router = express.Router();
+
+const request = require('request');
+
+const config = require('config');
 
 const auth = require('../../middleware/auth');
 
@@ -324,6 +328,40 @@ router.delete('/education/:edu_id', auth, async (req, res) => {
     console.log(err.message);
 
     res.status(500).send('Server Error');
+  }
+});
+
+/**
+ * @route   GET api/profile/github/:username
+ * @description get user github repos from github
+ * @access  Public
+ */
+
+router.get('/github/:username', async (req, res) => {
+  try {
+    const options = {
+      uri: `https://api.github.com/users/${
+        req.params.username
+      }/repos?per_page=5&client_id=${config.get('githubClientId')}&client_secret=${config.get(
+        'githubSecret'
+      )}`,
+      method: 'GET',
+      headers: { 'user-agent': 'node.js' },
+    };
+
+    request(options, (error, response, body) => {
+      if (error) console.log(error);
+
+      if (response.statusCode !== 200) {
+        return res.status(400).json({ msg: 'No Associated Github account found' });
+      }
+
+      res.json(JSON.parse(body));
+    });
+  } catch (err) {
+    console.log(err.message);
+
+    return res.status(500).send('Server Error');
   }
 });
 
