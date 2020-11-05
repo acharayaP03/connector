@@ -8,6 +8,49 @@ const auth = require('../../middleware/auth');
 
 const Profile = require('../../models/Profile');
 
+const User = require('../../models/User');
+
+/**
+ * @route   GET api/profile
+ * @description get all user profile
+ * @access  Public
+ */
+
+router.get('/', async (req, res) => {
+  try {
+    const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+    res.json(profiles);
+  } catch (err) {
+    console.log(err.message);
+
+    return res.status(500).send('Server Error');
+  }
+});
+/**
+ * @route   GET api/profile/user/:user_id
+ * @description get user profile
+ * @access  Public
+ */
+
+router.get('/user/:user_id', async (req, res) => {
+  try {
+    const profile = await Profile.findOne({ user: req.params.user_id }).populate('user', [
+      'name',
+      'avatar',
+    ]);
+    if (!profile) return res.status(400).json({ msg: 'There is no profile for this user.' });
+
+    return res.json(profile);
+  } catch (err) {
+    console.log(err.message);
+
+    if (err.kind === 'ObjectId')
+      return res.status(400).json({ msg: 'There is no profile for this user.' });
+
+    return res.status(500).send('Server Error');
+  }
+});
+
 /**
  * @route   GET api/profile/me
  * @description get profile for the logged in user
@@ -22,6 +65,7 @@ router.get('/me', auth, async (req, res) => {
     if (!profile) {
       return res.status(400).json({ msg: 'User profile doesnt exits.' });
     }
+    return res.json(profile);
   } catch (err) {
     console.log(err.message);
 
@@ -30,7 +74,7 @@ router.get('/me', auth, async (req, res) => {
 });
 
 /**
- * @route   GET api/profile/
+ * @route   Post api/profile/
  * @description Create or Update user profile
  * @access  Private
  */
@@ -116,5 +160,26 @@ router.post(
     res.send('Hello');
   }
 );
+
+/**
+ * @route   Deelete api/Profile
+ * @description Delete profile and user related post
+ * @access  Private
+ */
+
+router.delete('/', auth, async (req, res) => {
+  try {
+    // Remove porfile
+    await Profile.findOneAndRemove({ user: req.user.id });
+    // Remove user
+    await User.findOneAndRemove({ _id: req.user.id });
+
+    return res.json({ msg: 'User profile deleted.' });
+  } catch (err) {
+    console.log(err.message);
+
+    res.status(500).send('Server Error');
+  }
+});
 
 module.exports = router;
