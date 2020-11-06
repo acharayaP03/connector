@@ -58,6 +58,6 @@ const PostSchema = new Schema({
   },
 });
 
-const Post = model('profile', PostSchema);
+const Post = model('post', PostSchema);
 
 module.exports = Post;
