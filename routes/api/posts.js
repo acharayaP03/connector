@@ -13,13 +13,21 @@ const User = require('../../models/User');
 const Post = require('../../models/Post');
 
 /**
- * @route   GET api/users
- * @description Test Route
- * @access  Public
+ * @route   GET api/posts
+ * @description Get all posts
+ * @access  Private
+ *
  */
 
-router.get('/', (req, res) => {
-  res.send('posts Route.');
+router.get('/', auth, async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ date: -1 });
+
+    return res.json(posts);
+  } catch (err) {
+    console.log(err.message);
+    return res.status(500).send('Server Error');
+  }
 });
 
 /**
