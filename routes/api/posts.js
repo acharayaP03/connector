@@ -31,6 +31,33 @@ router.get('/', auth, async (req, res) => {
 });
 
 /**
+ * @route   GET api/posts/:id
+ * @description Get posts by id
+ * @access  Private
+ * @invalidPostId  if invalid post id is entered then this will catch it 
+ *  if (err.kind === 'ObjectId')
+      return res.status(400).json({ msg: 'Post not found' });
+    @errorRetruned Cast to ObjectId failed for value "5fa521126885af1078db9d41ghsfghsf" at path "_id" for model "post"
+ */
+
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(400).json({ msg: 'Post not found' });
+    }
+
+    return res.json(post);
+  } catch (err) {
+    console.log(err.message);
+
+    if (err.kind === 'ObjectId') return res.status(400).json({ msg: 'Post not found' });
+
+    return res.status(500).send('Server Error');
+  }
+});
+
+/**
  * @route   POST api/users
  * @description Create Post  Route
  * @access  Private
