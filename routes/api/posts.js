@@ -91,6 +91,36 @@ router.post('/', [auth, check('text', 'Text is required.').not().isEmpty()], asy
 });
 
 /**
+ * @route api/post/like/:id
+ * @description PUT Like post.
+ * @access  Private
+ */
+
+router.put('/like/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    // filter likes
+    const filterLike = post.likes.filter((like) => like.user.toString() === req.user.id);
+
+    if (filterLike.length > 0) {
+      return res.status(400).json({ msg: 'Post already Liked.' });
+    }
+
+    // if not liked yet then like it.
+    post.likes.unshift({ user: req.user.id });
+
+    await post.save();
+
+    res.json(post.likes);
+  } catch (err) {
+    console.log(err.message);
+
+    return res.status(500).send('Server Error');
+  }
+});
+
+/**
  * @route    api/posts/:id
  * @description DELETE posts
  * @access  Private
