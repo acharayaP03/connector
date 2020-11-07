@@ -121,6 +121,38 @@ router.put('/like/:id', auth, async (req, res) => {
 });
 
 /**
+ * @route api/post/unlike/:id
+ * @description PUT Like post.
+ * @access  Private
+ */
+
+router.put('/unlike/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    // filter likes
+    const filterLike = post.likes.filter((like) => like.user.toString() === req.user.id);
+
+    if (filterLike.length === 0) {
+      return res.status(400).json({ msg: 'Post has not yet been liked yet.' });
+    }
+
+    // if not liked yet then like it.
+    const removeIndex = post.likes.map((like) => like.user.toString()).indexOf(req.user.id);
+
+    post.likes.splice(removeIndex, 1);
+
+    await post.save();
+
+    res.json(post.likes);
+  } catch (err) {
+    console.log(err.message);
+
+    return res.status(500).send('Server Error');
+  }
+});
+
+/**
  * @route    api/posts/:id
  * @description DELETE posts
  * @access  Private
